@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Meal Planner</title>
+<style>
+  :root {
+    --bg: #f7f4ef;
+    --card: #ffffff;
+    --accent: #c85a2a;
+    --accent2: #4a7c59;
+    --text: #1a1a1a;
+    --text2: #6b6b6b;
+    --border: #e5e0d8;
+    --check: #4a7c59;
+    --tag-bg: #f0ebe2;
+    --shadow: 0 2px 12px rgba(0,0,0,0.08);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    padding: env(safe-area-inset-top, 12px) 16px 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .header-back {
+    width: 36px; height: 36px;
+    border: none; background: var(--tag-bg);
+    border-radius: 50%; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; color: var(--text);
+    flex-shrink: 0;
+  }
+  .header-title { font-size: 18px; font-weight: 700; flex: 1; }
+  .header-subtitle { font-size: 13px; color: var(--text2); }
+
+  /* ── HOME ── */
+  #home { padding: 16px; }
+  .home-greeting { margin-bottom: 20px; }
+  .home-greeting h1 { font-size: 26px; font-weight: 800; line-height: 1.2; }
+  .home-greeting p { font-size: 14px; color: var(--text2); margin-top: 4px; }
+
+  .filters {
+    display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px;
+  }
+  .filter-btn {
+    padding: 6px 14px; border-radius: 20px; border: 1.5px solid var(--border);
+    background: var(--card); font-size: 13px; font-weight: 500; cursor: pointer;
+    color: var(--text2); transition: all 0.15s;
+  }
+  .filter-btn.active {
+    background: var(--accent); border-color: var(--accent);
+    color: white;
+  }
+
+  .recipe-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+  }
+  .recipe-card {
+    background: var(--card); border-radius: 16px;
+    box-shadow: var(--shadow); overflow: hidden;
+    cursor: pointer; transition: transform 0.15s;
+    border: 1px solid var(--border);
+  }
+  .recipe-card:active { transform: scale(0.97); }
+  .recipe-card-emoji {
+    height: 90px; display: flex; align-items: center; justify-content: center;
+    font-size: 44px;
+    background: linear-gradient(135deg, var(--tag-bg) 0%, #ede7da 100%);
+  }
+  .recipe-card-body { padding: 10px 12px 12px; }
+  .recipe-card-name { font-size: 14px; font-weight: 700; line-height: 1.3; margin-bottom: 6px; }
+  .tags { display: flex; gap: 4px; flex-wrap: wrap; }
+  .tag {
+    font-size: 10px; font-weight: 600; padding: 2px 7px;
+    border-radius: 10px; background: var(--tag-bg); color: var(--text2);
+    text-transform: uppercase; letter-spacing: 0.3px;
+  }
+  .tag.rice { background: #fef3c7; color: #92400e; }
+  .tag.pasta { background: #ede9fe; color: #5b21b6; }
+  .tag.salad { background: #d1fae5; color: #065f46; }
+  .tag.time { background: #fee2e2; color: #991b1b; }
+
+  /* ── RECIPE DETAIL ── */
+  #recipe { display: none; }
+  .recipe-hero {
+    height: 160px; display: flex; align-items: center; justify-content: center;
+    font-size: 80px;
+    background: linear-gradient(135deg, #f0ebe2 0%, #ede7da 100%);
+  }
+  .recipe-info { padding: 16px; }
+  .recipe-title { font-size: 22px; font-weight: 800; line-height: 1.2; margin-bottom: 8px; }
+  .recipe-meta { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+
+  /* ── TABS ── */
+  .tabs {
+    display: flex; border-bottom: 1px solid var(--border);
+    margin: 0 16px; position: sticky; top: 60px; z-index: 50;
+    background: var(--bg);
+  }
+  .tab-btn {
+    flex: 1; padding: 12px 8px; border: none; background: transparent;
+    font-size: 14px; font-weight: 600; color: var(--text2); cursor: pointer;
+    border-bottom: 2.5px solid transparent; transition: all 0.15s;
+  }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  .tab-content { display: none; padding: 16px; }
+  .tab-content.active { display: block; }
+
+  /* ── INGREDIENTS / STEPS ── */
+  .section-label {
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.8px; color: var(--text2); margin: 16px 0 8px;
+  }
+  .section-label:first-child { margin-top: 0; }
+
+  .ingredient-list { list-style: none; }
+  .ingredient-list li {
+    padding: 9px 0; border-bottom: 1px solid var(--border);
+    font-size: 15px; display: flex; gap: 10px;
+  }
+  .ingredient-list li:last-child { border-bottom: none; }
+  .ingredient-list li::before {
+    content: '•'; color: var(--accent); font-size: 18px; line-height: 1;
+    flex-shrink: 0;
+  }
+
+  .steps-list { list-style: none; counter-reset: steps; }
+  .steps-list li {
+    counter-increment: steps;
+    padding: 12px 0; border-bottom: 1px solid var(--border);
+    font-size: 15px; line-height: 1.6; display: flex; gap: 12px;
+  }
+  .steps-list li:last-child { border-bottom: none; }
+  .steps-list li::before {
+    content: counter(steps);
+    min-width: 26px; height: 26px;
+    background: var(--accent); color: white;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; flex-shrink: 0; margin-top: 1px;
+  }
+
+  /* ── GROCERY LIST ── */
+  .grocery-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 16px;
+  }
+  .grocery-header h3 { font-size: 16px; font-weight: 700; }
+  .clear-btn {
+    font-size: 13px; color: var(--accent); background: none;
+    border: none; cursor: pointer; font-weight: 600; padding: 4px 8px;
+  }
+  .grocery-group { margin-bottom: 20px; }
+  .grocery-group-title {
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.8px; color: var(--text2); margin-bottom: 8px;
+  }
+  .grocery-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 11px 0; border-bottom: 1px solid var(--border); cursor: pointer;
+  }
+  .grocery-item:last-child { border-bottom: none; }
+  .grocery-item input[type="checkbox"] { display: none; }
+  .grocery-check {
+    width: 22px; height: 22px; border-radius: 6px;
+    border: 2px solid var(--border); flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s; background: white;
+  }
+  .grocery-check svg { display: none; }
+  .grocery-item.checked .grocery-check {
+    background: var(--check); border-color: var(--check);
+  }
+  .grocery-item.checked .grocery-check svg { display: block; }
+  .grocery-item-text {
+    font-size: 15px; flex: 1; transition: all 0.15s;
+  }
+  .grocery-item.checked .grocery-item-text {
+    text-decoration: line-through; color: var(--text2);
+  }
+
+  .progress-bar-wrap { height: 4px; background: var(--border); border-radius: 2px; margin-bottom: 16px; }
+  .progress-bar { height: 100%; background: var(--check); border-radius: 2px; transition: width 0.3s; }
+
+  /* ── EMPTY / UTILITY ── */
+  .hidden { display: none !important; }
+  .page { padding-bottom: env(safe-area-inset-bottom, 24px); }
+</style>
+</head>
+<body>
+
+<!-- ══ HEADER ══ -->
+<div class="header" id="appHeader">
+  <button class="header-back hidden" id="backBtn" onclick="goHome()">←</button>
+  <div>
+    <div class="header-title" id="headerTitle">🍽 Meal Planner</div>
+    <div class="header-subtitle" id="headerSub">10 recipes · 2 people</div>
+  </div>
+</div>
+
+<!-- ══ HOME ══ -->
+<div id="home" class="page">
+  <div style="padding:16px 16px 0">
+    <div class="home-greeting">
+      <h1>What are we cooking? 🔥</h1>
+      <p>Tap a recipe to see ingredients & grocery list</p>
+    </div>
+    <div class="filters" id="filterBar">
+      <button class="filter-btn active" onclick="filterRecipes('all', this)">All</button>
+      <button class="filter-btn" onclick="filterRecipes('rice', this)">🍚 Rice</button>
+      <button class="filter-btn" onclick="filterRecipes('pasta', this)">🍝 Pasta</button>
+      <button class="filter-btn" onclick="filterRecipes('salad', this)">🥗 Salad</button>
+    </div>
+  </div>
+  <div class="recipe-grid" id="recipeGrid" style="padding:0 16px 24px"></div>
+</div>
+
+<!-- ══ RECIPE DETAIL ══ -->
+<div id="recipe" class="page">
+  <div class="recipe-hero" id="recipeHero"></div>
+  <div class="recipe-info">
+    <div class="recipe-title" id="recipeTitle"></div>
+    <div class="recipe-meta" id="recipeMeta"></div>
+  </div>
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('ingredients', this)">Ingredients</button>
+    <button class="tab-btn" onclick="switchTab('steps', this)">Steps</button>
+    <button class="tab-btn" onclick="switchTab('grocery', this)">🛒 Grocery</button>
+  </div>
+  <div id="tab-ingredients" class="tab-content active"></div>
+  <div id="tab-steps" class="tab-content"></div>
+  <div id="tab-grocery" class="tab-content"></div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════
+// RECIPE DATA
+// ═══════════════════════════════════════════════════
+const recipes = [
+  {
+    id: 'honey-sesame-chicken',
+    name: 'Honey Sesame Chicken Bowl',
+    emoji: '🍯',
+    side: 'rice',
+    cuisine: 'Asian',
+    time: '30 min',
+    protein: 'Chicken',
+    desc: 'Crispy chicken thighs glazed in sticky honey sesame sauce over jasmine rice',
+    ingredients: [
+      { group: 'Protein', items: ['4 boneless chicken thighs', '2 tbsp cornstarch', 'Salt & pepper'] },
+      { group: 'Sauce', items: ['3 tbsp soy sauce', '2 tbsp honey', '1 tbsp sesame oil', '1 tbsp rice vinegar', '2 cloves garlic, minced', '1 tsp fresh ginger, grated', '1 tsp sriracha (optional)'] },
+      { group: 'Bowl & Garnish', items: ['1½ cups jasmine rice', '1 cup frozen edamame', '3 scallions, sliced', '1 tbsp sesame seeds', '1 tbsp neutral oil'] },
+    ],
+    steps: [
+      'Cook jasmine rice per package instructions. Steam or microwave edamame.',
+      'Pat chicken thighs dry, season with salt & pepper, dust with cornstarch on both sides.',
+      'Heat oil in a skillet over medium-high. Cook chicken 5–6 min per side until golden and cooked through. Remove and rest 2 min, then slice.',
+      'In the same skillet over medium, whisk together soy sauce, honey, sesame oil, rice vinegar, garlic, and ginger. Simmer 2 min until slightly thickened.',
+      'Add sliced chicken back into sauce and toss to coat.',
+      'Serve over rice with edamame, scallions, and sesame seeds.',
+    ],
+    grocery: [
+      { category: 'Meat', items: ['4 boneless chicken thighs'] },
+      { category: 'Produce', items: ['Fresh ginger (small knob)', '3 scallions', '2 cloves garlic'] },
+      { category: 'Pantry', items: ['Jasmine rice', 'Soy sauce', 'Honey', 'Sesame oil', 'Rice vinegar', 'Cornstarch', 'Sriracha (optional)'] },
+      { category: 'Frozen', items: ['Frozen edamame'] },
+      { category: 'Spices', items: ['Sesame seeds', 'Salt & pepper'] },
+    ]
+  },
+  {
+    id: 'korean-beef-bulgogi',
+    name: 'Korean Beef Bulgogi Bowl',
+    emoji: '🥩',
+    side: 'rice',
+    cuisine: 'Asian',
+    time: '35 min',
+    protein: 'Beef',
+    desc: 'Tender marinated beef in sweet-savory gochujang glaze over steamed rice with pickled veggies',
+    ingredients: [
+      { group: 'Protein & Marinade', items: ['350g flank steak or ribeye, thinly sliced', '3 tbsp soy sauce', '1½ tbsp brown sugar', '1 tbsp sesame oil', '1 tbsp gochujang (Korean chili paste)', '3 cloves garlic, minced', '1 tsp ginger, grated', '½ Asian pear or apple, grated (tenderizes the meat)'] },
+      { group: 'Bowl', items: ['1½ cups jasmine or short-grain rice', '1 cup shredded carrots', '1 cucumber, sliced thin', '2 tbsp rice vinegar', '1 tsp sugar, pinch of salt (for quick pickle)'] },
+      { group: 'Garnish', items: ['Sesame seeds', '2 scallions, sliced', 'Sliced kimchi (optional but recommended)'] },
+    ],
+    steps: [
+      'Slice beef very thin against the grain (easier if partially frozen). Combine all marinade ingredients and toss with beef. Marinate 20+ min (or overnight in the fridge).',
+      'Quick-pickle the cucumber: toss with rice vinegar, sugar, and a pinch of salt. Set aside.',
+      'Cook rice per package instructions.',
+      'Heat a heavy skillet or wok over high heat until very hot. Add beef in a single layer (work in batches to avoid steaming). Cook 1–2 min per side until caramelized.',
+      'Serve over rice with carrots, pickled cucumber, and kimchi. Top with scallions and sesame seeds.',
+    ],
+    grocery: [
+      { category: 'Meat', items: ['350g flank steak or ribeye'] },
+      { category: 'Produce', items: ['3 cloves garlic', 'Fresh ginger', '½ Asian pear or apple', '1 cucumber', '1 cup shredded carrots', '2 scallions'] },
+      { category: 'Pantry', items: ['Jasmine or short-grain rice', 'Soy sauce', 'Brown sugar', 'Sesame oil', 'Rice vinegar'] },
+      { category: 'Sauces & Condiments', items: ['Gochujang (Korean chili paste)', 'Kimchi (optional)'] },
+      { category: 'Spices', items: ['Sesame seeds'] },
+    ]
+  },
+  {
+    id: 'lemon-feta-chicken-orzo',
+    name: 'Lemon Feta Chicken Orzo',
+    emoji: '🫒',
+    side: 'pasta',
+    cuisine: 'Mediterranean',
+    time: '35 min',
+    protein: 'Chicken',
+    desc: 'Pan-seared chicken over lemony orzo with feta, olives, sun-dried tomatoes and spinach',
+    ingredients: [
+      { group: 'Protein', items: ['2 chicken breasts', '1 tsp dried oregano', '1 tsp smoked paprika', 'Salt & pepper', '1 tbsp olive oil'] },
+      { group: 'Orzo', items: ['1 cup orzo pasta', '2 cups chicken broth', '3 cloves garlic, minced', '1 cup cherry tomatoes, halved', '2 cups baby spinach', '½ cup kalamata olives, halved', '3 tbsp sun-dried tomatoes, chopped', 'Juice & zest of 1 lemon'] },
+      { group: 'Finish', items: ['100g feta cheese, crumbled', 'Fresh parsley or basil', '2 tbsp olive oil'] },
+    ],
+    steps: [
+      'Season chicken with oregano, paprika, salt & pepper. Heat oil in a large skillet over medium-high. Sear chicken 5–6 min per side until cooked through. Remove and rest.',
+      'In the same skillet over medium, add 1 tbsp olive oil and sauté garlic 30 sec until fragrant.',
+      'Add orzo and toast 1 min. Pour in chicken broth. Bring to a simmer, cover, and cook 8–10 min until orzo is tender and broth is mostly absorbed.',
+      'Stir in cherry tomatoes, olives, sun-dried tomatoes, spinach, lemon juice, and zest. Cook 1–2 min until spinach wilts.',
+      'Slice chicken. Serve over orzo, top generously with feta and fresh herbs.',
+    ],
+    grocery: [
+      { category: 'Meat', items: ['2 chicken breasts'] },
+      { category: 'Produce', items: ['3 cloves garlic', '1 cup cherry tomatoes', '2 cups baby spinach', '1 lemon', 'Fresh parsley or basil'] },
+      { category: 'Pantry', items: ['Orzo pasta', 'Chicken broth (2 cups)', 'Sun-dried tomatoes', 'Olive oil'] },
+      { category: 'Dairy & Deli', items: ['100g feta cheese', 'Kalamata olives'] },
+      { category: 'Spices', items: ['Dried oregano', 'Smoked paprika', 'Salt & pepper'] },
+    ]
+  },
+  {
+    id: 'thai-basil-pork',
+    name: 'Thai Basil Pork (Pad Kra Pao)',
+    emoji: '🌿',
+    side: 'rice',
+    cuisine: 'Asian',
+    time: '20 min',
+    protein: 'Pork',
+    desc: 'Lightning-fast Thai street food: fragrant ground pork with Thai basil in a sweet-spicy sauce',
+    ingredients: [
+      { group: 'Protein', items: ['350g ground pork'] },
+      { group: 'Aromatics & Heat', items: ['5 cloves garlic, minced', '3 Thai bird\'s eye chilis, sliced (adjust to taste)', '1 large shallot, sliced thin'] },
+      { group: 'Sauce', items: ['2 tbsp oyster sauce', '1 tbsp fish sauce', '1 tbsp soy sauce', '1 tsp dark soy sauce', '1½ tsp sugar'] },
+      { group: 'Bowl', items: ['1½ cups jasmine rice', '1 large handful Thai basil (or regular basil)', '2 tbsp neutral oil', '2 eggs (optional — fried egg on top is classic)', 'Lime wedges to serve'] },
+    ],
+    steps: [
+      'Mix all sauce ingredients in a small bowl. Cook rice per package instructions.',
+      'Heat oil in a wok or large skillet over very high heat until smoking. Add garlic and chilis and fry 30 sec until fragrant.',
+      'Add ground pork and cook, breaking it up, until browned and cooked through — about 4–5 min.',
+      'Pour sauce over pork and stir-fry 1–2 min until everything is glazed and sticky.',
+      'Remove from heat and fold in Thai basil — it will wilt from the residual heat.',
+      'Optional: fry eggs sunny-side up in a separate pan. Serve pork over rice, topped with a fried egg and lime wedges.',
+    ],
+    grocery: [
+      { category: 'Meat', items: ['350g ground pork'] },
+      { category: 'Produce', items: ['1 large shallot', '5 cloves garlic', '3 Thai bird\'s eye chilis', '1 large bunch Thai basil', '2 limes'] },
+      { category: 'Pantry', items: ['Jasmine rice', 'Neutral oil (vegetable/canola)'] },
+      { category: 'Sauces & Condiments', items: ['Oyster sauce', 'Fish sauce', 'Soy sauce', 'Dark soy sauce'] },
+      { category: 'Dairy', items: ['2 eggs (optional)'] },
+      { category: 'Spices', items: ['Sugar'] },
+    ]
+  },
+  {
+    id: 'spanish-chorizo-pasta',
+    name: 'Spanish Chicken & Chorizo Pasta',
+    emoji: '🌶️',
+    side: 'pasta',
+    cuisine: 'Mediterranean',
+    time: '35 min',
+    protein: 'Chicken',
+    desc: 'Bold, smoky pasta with crispy chorizo, chicken, and a rich tomato-paprika sauce',
+    ingredients: [
+      { group: 'Protein', items: ['2 chicken thighs, boneless, cubed', '100g Spanish chorizo, sliced', '1 tbsp olive oil'] },
+      { group: 'Sauce', items: ['3 cloves garlic, minced', '1 red bell pepper, sliced', '1 can (400g) crushed tomatoes', '½ cup dry white wine (or chicken broth)', '1 tsp smoked paprika', '½ tsp chili flakes', 'Salt & pepper'] },
+      { group: 'Pasta', items: ['200g rigatoni or penne', 'Fresh flat-leaf parsley', 'Grated manchego or parmesan to serve'] },
+    ],
+    steps: [
+      'Cook pasta per package instructions until al dente. Reserve ½ cup pasta water before draining.',
+      'Heat oil in a large pan. Fry chorizo slices until crispy, 2–3 min. Remove with a slotted spoon, leaving the fat in the pan.',
+      'Season chicken with salt, pepper, and paprika. Cook in chorizo fat over medium-high, 3–4 min per side until golden. Remove.',
+      'Add garlic and red pepper to pan. Sauté 3 min. Add white wine and scrape up any bits. Pour in crushed tomatoes and chili flakes. Simmer 10 min.',
+      'Return chicken and chorizo to sauce. Add drained pasta, toss to coat — add pasta water as needed for a saucy consistency.',
+      'Serve topped with parsley and grated cheese.',
+    ],
+    grocery: [
+      { category: 'Meat', items: ['2 boneless chicken thighs', '100g Spanish chorizo'] },
+      { category: 'Produce', items: ['3 cloves garlic', '1 red bell pepper', 'Fresh flat-leaf parsley'] },
+      { category: 'Pantry', items: ['Rigatoni or penne (200g)', '1 can (400g) crushed tomatoes', 'Dry white wine or chicken broth', 'Olive oil'] },
+      { category: 'Dairy & Deli', items: ['Manchego or parmesan, for serving'] },
+      { category: 'Spices', items: ['Smoked paprika', 'Chili flakes', 'Salt & pepper'] },
+    ]
+  },
+  {
+    id: 'chipotle-chicken-salad',
+    name: 'Chipotle Lime Chicken Salad',
+    emoji: '🥑',
+    side: 'salad',
+    cuisine: 'Mexican',
+    time: '25 min',
+    protein: 'Chicken',
+    desc: 'Smoky charred chicken over crisp romaine with black beans, avocado, corn, and a zippy cilantro-lime dressing',
+    ingredients: [
+      { group: 'Chicken', items: ['2 chicken breasts', '2 chipotle peppers in adobo sauce, minced', '1 tbsp adobo sauce (from the can)', 'Juice of 1 lime', '1 tsp cumin', '1 tsp garlic powder', '1 tbsp olive oil', 'Salt & pepper'] },
+      { group: 'Salad', items: ['2 hearts of romaine, chopped', '1 can (400g) black beans, drained & rinsed', '1 cup corn (canned or frozen)', '1 avocado, sliced', '100g cotija or queso fresco, crumbled', '½ red onion, sliced thin', 'Tortilla strips or chips'] },
+      { group: 'Cilantro-Lime Dressing', items: ['3 tbsp olive oil', 'Juice of 1½ limes', '1 small handful fresh cilantro', '1 clove garlic', '1 tsp honey', '2 tbsp Greek yogurt', 'Salt & pepper'] },
+    ],
+    steps: [
+      'Mix chipotle peppers, adobo sauce, lime juice, cumin, garlic powder, oil, salt & pepper. Coat chicken and marinate at least 10 min.',
+      'Blend all dressing ingredients until smooth. Taste and adjust lime/salt.',
+      'Cook chicken on a grill pan or skillet over medium-high, 5–6 min per side, until cooked through with nice char marks. Rest 3 min, then slice.',
+      'If using frozen corn, char it in a dry pan until lightly blackened.',
+      'Assemble: romaine, beans, corn, red onion, avocado. Top with chicken, cotija, and tortilla strips.',
+      'Drizzle dressing over everything just before eating.',
+    ],
+    grocery: [
+      { category: 'Meat', items: ['2 chicken breasts'] },
+      { category: 'Produce', items: ['2 hearts of romaine', '1 avocado', '½ red onion', '1 bunch fresh cilantro', '2–3 limes', '1 clove garlic'] },
+      { category: 'Pantry', items: ['1 can (400g) black beans', 'Corn (canned or frozen)', 'Chipotle peppers in adobo (1 can)', 'Tortilla strips', 'Olive oil', 'Honey'] },
+      { category: 'Dairy', items: ['100g cotija or queso fresco', '2 tbsp Greek yogurt'] },
+      { category: 'Spices', items: ['Cumin', 'Garlic powder', 'Salt & pepper'] },
+    ]
+  },
+  {
+    id: 'shakshuka-chickpea',
+    name: 'Shakshuka with Chickpeas & Feta',
+    emoji: '🍳',
+    side: 'salad',
+    cuisine: 'Mediterranean',
+    time: '30 min',
+    protein: 'Vegetarian',
+    desc: 'Eggs poached in a rich, spiced tomato sauce loaded with chickpeas and finished with feta and herbs. Served with a simple cucumber salad.',
+    ingredients: [
+      { group: 'Shakshuka', items: ['4 large eggs', '1 can (400g) chickpeas, drained', '1 can (400g) crushed tomatoes', '1 red bell pepper, diced', '1 onion, diced', '3 cloves garlic, minced', '1½ tsp cumin', '1 tsp smoked paprika', '½ tsp coriander', '¼ tsp cayenne', '2 tbsp olive oil', 'Salt & pepper'] },
+      { group: 'Topping', items: ['80g feta cheese, crumbled', 'Fresh parsley or cilantro', 'Crusty bread or pita (optional)'] },
+      { group: 'Cucumber Salad (side)', items: ['1 large cucumber, diced', '1 cup cherry tomatoes, halved', '¼ red onion, sliced thin', 'Juice of ½ lemon', '1 tbsp olive oil', 'Fresh mint or parsley', 'Salt & pepper'] },
+    ],
+    steps: [
+      'Heat olive oil in a deep skillet over medium. Sauté onion and pepper 5–6 min until softened.',
+      'Add garlic, cumin, paprika, coriander, and cayenne. Cook 1 min until fragrant.',
+      'Add crushed tomatoes and chickpeas. Stir well, season with salt & pepper. Simmer 10 min.',
+      'Make 4 wells in the sauce. Crack an egg into each well. Cover and cook 5–7 min until whites are set but yolks are still runny.',
+      'Meanwhile, toss all cucumber salad ingredients together.',
+      'Top shakshuka with feta and fresh herbs. Serve hot with cucumber salad on the side.',
+    ],
+    grocery: [
+      { category: 'Produce', items: ['1 red bell pepper', '1 onion', '3 cloves garlic', '1 large cucumber', '1 cup cherry tomatoes', '¼ red onion', '1 lemon', 'Fresh parsley or cilantro', 'Fresh mint (optional)'] },
+      { category: 'Pantry', items: ['1 can (400g) chickpeas', '1 can (400g) crushed tomatoes', 'Olive oil', 'Crusty bread or pita (optional)'] },
+      { category: 'Dairy', items: ['4 large eggs', '80g feta cheese'] },
+      { category: 'Spices', items: ['Cumin', 'Smoked paprika', 'Coriander', 'Cayenne', 'Salt & pepper'] },
+    ]
+  },
+  {
+    id: 'birria-beef-rice',
+    name: 'Birria-Style Beef Rice Bowl',
+    emoji: '🌮',
+    side: 'rice',
+    cuisine: 'Mexican',
+    time: '45 min',
+    protein: 'Beef',
+    desc: 'Rich, deeply spiced braised beef over cilantro-lime rice with pickled red onion and crema',
+    ingredients: [
+      { group: 'Braised Beef', items: ['500g beef chuck, cut into large cubes', '2 guajillo chilis, deseeded', '1 chipotle in adobo + 1 tbsp sauce', '1 can (400g) diced tomatoes', '1 onion, quartered', '4 cloves garlic', '1 tsp cumin', '1 tsp dried oregano', '½ tsp smoked paprika', '2 cups beef broth', 'Salt & pepper', '1 tbsp oil'] },
+      { group: 'Cilantro-Lime Rice', items: ['1½ cups long-grain white rice', '2 cups water or broth', 'Juice of 1 lime', 'Small handful fresh cilantro, chopped'] },
+      { group: 'Toppings', items: ['½ red onion, sliced thin', 'Juice of 1 lime (for quick pickling)', '1 avocado, sliced', 'Mexican crema or sour cream', 'Fresh cilantro', 'Lime wedges', 'Cotija or queso fresco'] },
+    ],
+    steps: [
+      'Quick-soak guajillo chilis: cover with boiling water for 10 min. Drain.',
+      'Blend chilis with chipotle, adobo sauce, tomatoes, onion, garlic, cumin, oregano, and paprika until smooth.',
+      'Season beef with salt and pepper. Brown in oil in a pressure cooker or heavy pot, 2–3 min per side.',
+      'Pour blended sauce over beef with beef broth. Pressure cook 35 min (or braise covered in oven at 325°F / 160°C for 2.5 hrs) until fall-apart tender.',
+      'Shred beef and toss back in sauce. Quick-pickle red onion in lime juice with a pinch of salt (10 min).',
+      'Cook rice; stir in lime juice and cilantro when done. Serve beef over rice with all toppings.',
+    ],
+    grocery: [
+      { category: 'Meat', items: ['500g beef chuck'] },
+      { category: 'Produce', items: ['1 onion', '4 cloves garlic', '½ red onion', '1 avocado', 'Fresh cilantro', '2–3 limes'] },
+      { category: 'Pantry', items: ['Long-grain white rice', 'Beef broth (2 cups)', '1 can (400g) diced tomatoes', 'Guajillo chilis (dried)', 'Chipotle peppers in adobo', 'Oil'] },
+      { category: 'Dairy', items: ['Mexican crema or sour cream', 'Cotija or queso fresco'] },
+      { category: 'Spices', items: ['Cumin', 'Dried oregano', 'Smoked paprika', 'Salt & pepper'] },
+    ]
+  },
+  {
+    id: 'black-bean-sweet-potato-bowl',
+    name: 'Black Bean & Sweet Potato Bowl',
+    emoji: '🍠',
+    side: 'rice',
+    cuisine: 'Mexican',
+    time: '40 min',
+    protein: 'Vegetarian',
+    desc: 'Caramelized roasted sweet potato and crispy spiced black beans over rice with avocado-tahini drizzle',
+    ingredients: [
+      { group: 'Roasted Veg', items: ['2 medium sweet potatoes, cubed', '1 can (400g) black beans, drained', '1 red onion, wedged', '1½ tbsp olive oil', '1 tsp cumin', '1 tsp smoked paprika', '½ tsp chili powder', 'Salt & pepper'] },
+      { group: 'Rice Bowl', items: ['1½ cups jasmine rice', '1 cup frozen corn', '1 avocado'] },
+      { group: 'Avocado Tahini Sauce', items: ['½ avocado', '2 tbsp tahini', 'Juice of 1 lime', '1 clove garlic', '2–4 tbsp water (to thin)', 'Salt'] },
+      { group: 'Toppings', items: ['Fresh cilantro', 'Pickled jalapeños', 'Lime wedges', 'Hot sauce'] },
+    ],
+    steps: [
+      'Preheat oven to 425°F / 220°C. Toss sweet potatoes and red onion with olive oil, cumin, paprika, chili powder, salt & pepper. Spread on a baking sheet.',
+      'Roast 20 min, then add drained black beans to the pan. Toss and roast another 10–12 min until sweet potato is caramelized and beans are slightly crispy.',
+      'Meanwhile cook rice. Char corn in a dry pan until golden.',
+      'Blend all sauce ingredients until smooth. Add water gradually to reach a drizzleable consistency. Taste for salt and lime.',
+      'Build bowls: rice, roasted sweet potato, beans, corn, sliced avocado. Drizzle generously with avocado tahini sauce.',
+      'Top with cilantro, pickled jalapeños, and a squeeze of lime.',
+    ],
+    grocery: [
+      { category: 'Produce', items: ['2 medium sweet potatoes', '1 red onion', '2 avocados', '1 clove garlic', 'Fresh cilantro', '2 limes'] },
+      { category: 'Pantry', items: ['Jasmine rice', '1 can (400g) black beans', 'Frozen corn', 'Olive oil', 'Tahini'] },
+      { category: 'Condiments', items: ['Pickled jalapeños', 'Hot sauce'] },
+      { category: 'Spices', items: ['Cumin', 'Smoked paprika', 'Chili powder', 'Salt & pepper'] },
+    ]
+  },
+  {
+    id: 'smash-burger-salad',
+    name: 'Smash Burger Salad Bowl',
+    emoji: '🍔',
+    side: 'salad',
+    cuisine: 'American',
+    time: '25 min',
+    protein: 'Beef',
+    desc: 'All the joy of a smash burger — crispy beef, melty cheese, and special sauce — turned into a guilt-free salad bowl',
+    ingredients: [
+      { group: 'Smash Patties', items: ['350g ground beef (80/20)', '4 slices American or cheddar cheese', 'Salt, pepper, garlic powder', '1 tbsp neutral oil'] },
+      { group: 'Salad Base', items: ['½ iceberg lettuce, shredded', '2 cups romaine, chopped', '1 cup cherry tomatoes, halved', '½ red onion, sliced thin', '½ cup dill pickles, sliced'] },
+      { group: 'Special Sauce', items: ['3 tbsp mayonnaise', '1 tbsp ketchup', '1 tbsp yellow mustard', '1 tbsp sweet relish', '1 tsp white wine vinegar', '½ tsp garlic powder', 'Pinch of paprika'] },
+      { group: 'Optional Add-ons', items: ['Crispy bacon strips', 'Sesame croutons', 'Sliced avocado'] },
+    ],
+    steps: [
+      'Make special sauce: whisk together mayo, ketchup, mustard, relish, vinegar, garlic powder, and paprika. Refrigerate.',
+      'Divide ground beef into 4 equal balls. Season generously with salt, pepper, and garlic powder.',
+      'Heat a cast-iron skillet or heavy pan over very high heat until smoking. Add a ball of beef and immediately smash flat with a spatula. Cook 2 min until crispy and deeply browned. Flip, add cheese, cook 1 min more. Repeat.',
+      'Let patties rest 2 min, then roughly chop or slice.',
+      'Toss lettuce and romaine with a little special sauce. Add tomatoes, onion, and pickles.',
+      'Top with chopped smash patties and drizzle generously with more sauce.',
+    ],
+    grocery: [
+      { category: 'Meat', items: ['350g ground beef (80/20)', 'Bacon (optional)'] },
+      { category: 'Produce', items: ['½ iceberg lettuce', '1 small head romaine', '1 cup cherry tomatoes', '½ red onion', '1 avocado (optional)'] },
+      { category: 'Dairy', items: ['4 slices American or cheddar cheese'] },
+      { category: 'Pantry', items: ['Dill pickles', 'Mayonnaise', 'Ketchup', 'Yellow mustard', 'Sweet relish', 'White wine vinegar', 'Neutral oil'] },
+      { category: 'Spices', items: ['Garlic powder', 'Paprika', 'Salt & pepper'] },
+    ]
+  },
+];
+
+// ═══════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════
+let currentRecipeId = null;
+let currentFilter = 'all';
+
+function getCheckedKey(recipeId) { return `checked_${recipeId}`; }
+function getChecked(recipeId) {
+  try { return JSON.parse(localStorage.getItem(getCheckedKey(recipeId)) || '{}'); }
+  catch { return {}; }
+}
+function setChecked(recipeId, checked) {
+  localStorage.setItem(getCheckedKey(recipeId), JSON.stringify(checked));
+}
+
+// ═══════════════════════════════════════════════════
+// HOME
+// ═══════════════════════════════════════════════════
+function filterRecipes(filter, btn) {
+  currentFilter = filter;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderGrid();
+}
+
+function renderGrid() {
+  const grid = document.getElementById('recipeGrid');
+  const filtered = currentFilter === 'all'
+    ? recipes
+    : recipes.filter(r => r.side === currentFilter);
+  grid.innerHTML = filtered.map(r => `
+    <div class="recipe-card" onclick="openRecipe('${r.id}')">
+      <div class="recipe-card-emoji">${r.emoji}</div>
+      <div class="recipe-card-body">
+        <div class="recipe-card-name">${r.name}</div>
+        <div class="tags">
+          <span class="tag ${r.side}">${r.side === 'rice' ? '🍚' : r.side === 'pasta' ? '🍝' : '🥗'} ${r.side}</span>
+          <span class="tag time">⏱ ${r.time}</span>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ═══════════════════════════════════════════════════
+// RECIPE DETAIL
+// ═══════════════════════════════════════════════════
+function openRecipe(id) {
+  currentRecipeId = id;
+  const r = recipes.find(x => x.id === id);
+  document.getElementById('home').style.display = 'none';
+  document.getElementById('recipe').style.display = 'block';
+  document.getElementById('backBtn').classList.remove('hidden');
+  document.getElementById('headerTitle').textContent = r.cuisine + ' · ' + r.protein;
+  document.getElementById('headerSub').textContent = r.time + ' · 2 servings';
+
+  document.getElementById('recipeHero').textContent = r.emoji;
+  document.getElementById('recipeTitle').textContent = r.name;
+  document.getElementById('recipeMeta').innerHTML = `
+    <span class="tag ${r.side}">${r.side === 'rice' ? '🍚' : r.side === 'pasta' ? '🍝' : '🥗'} ${r.side}</span>
+    <span class="tag">${r.cuisine}</span>
+    <span class="tag time">⏱ ${r.time}</span>
+    <span class="tag">👥 2 people</span>
+  `;
+
+  // Ingredients tab
+  document.getElementById('tab-ingredients').innerHTML = r.ingredients.map(g => `
+    <p class="section-label">${g.group}</p>
+    <ul class="ingredient-list">
+      ${g.items.map(i => `<li>${i}</li>`).join('')}
+    </ul>
+  `).join('');
+
+  // Steps tab
+  document.getElementById('tab-steps').innerHTML = `
+    <ol class="steps-list">
+      ${r.steps.map(s => `<li><span>${s}</span></li>`).join('')}
+    </ol>
+  `;
+
+  // Grocery tab
+  renderGrocery(r);
+
+  // Reset to ingredients tab
+  switchTab('ingredients', document.querySelectorAll('.tab-btn')[0]);
+  window.scrollTo(0, 0);
+}
+
+function renderGrocery(r) {
+  const checked = getChecked(r.id);
+  const allItems = r.grocery.flatMap(g => g.items);
+  const checkedCount = allItems.filter(item => checked[item]).length;
+  const pct = allItems.length ? (checkedCount / allItems.length * 100) : 0;
+
+  document.getElementById('tab-grocery').innerHTML = `
+    <div class="grocery-header">
+      <h3>🛒 Grocery List</h3>
+      <button class="clear-btn" onclick="clearGrocery('${r.id}')">Clear all</button>
+    </div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar" style="width:${pct}%" id="groceryProgress"></div>
+    </div>
+    ${r.grocery.map(g => `
+      <div class="grocery-group">
+        <div class="grocery-group-title">${g.category}</div>
+        ${g.items.map(item => {
+          const key = item;
+          const isChecked = !!checked[key];
+          return `
+            <div class="grocery-item ${isChecked ? 'checked' : ''}" onclick="toggleGrocery('${r.id}', this, '${item.replace(/'/g, "\\'")}')">
+              <div class="grocery-check">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                  <path d="M2 6l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <span class="grocery-item-text">${item}</span>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    `).join('')}
+  `;
+}
+
+function toggleGrocery(recipeId, el, item) {
+  el.classList.toggle('checked');
+  const checked = getChecked(recipeId);
+  if (el.classList.contains('checked')) {
+    checked[item] = true;
+  } else {
+    delete checked[item];
+  }
+  setChecked(recipeId, checked);
+
+  // Update progress bar
+  const r = recipes.find(x => x.id === recipeId);
+  const allItems = r.grocery.flatMap(g => g.items);
+  const checkedCount = Object.keys(checked).length;
+  const pct = allItems.length ? (checkedCount / allItems.length * 100) : 0;
+  const bar = document.getElementById('groceryProgress');
+  if (bar) bar.style.width = pct + '%';
+}
+
+function clearGrocery(recipeId) {
+  setChecked(recipeId, {});
+  const r = recipes.find(x => x.id === recipeId);
+  renderGrocery(r);
+}
+
+// ═══════════════════════════════════════════════════
+// NAV
+// ═══════════════════════════════════════════════════
+function goHome() {
+  document.getElementById('home').style.display = 'block';
+  document.getElementById('recipe').style.display = 'none';
+  document.getElementById('backBtn').classList.add('hidden');
+  document.getElementById('headerTitle').textContent = '🍽 Meal Planner';
+  document.getElementById('headerSub').textContent = '10 recipes · 2 people';
+  currentRecipeId = null;
+  window.scrollTo(0, 0);
+}
+
+function switchTab(tabId, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  document.getElementById('tab-' + tabId).classList.add('active');
+}
+
+// ═══════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════
+renderGrid();
+</script>
+</body>
+</html>
