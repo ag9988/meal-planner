@@ -223,6 +223,126 @@
     padding: 4px 16px 12px;
   }
 
+  /* ── WEEK BANNER (home) ── */
+  .week-banner {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--accent); color: white;
+    border-radius: 14px; padding: 14px 16px;
+    margin-bottom: 16px; cursor: pointer;
+    box-shadow: 0 3px 12px rgba(200,90,42,0.3);
+    transition: opacity 0.15s;
+  }
+  .week-banner:active { opacity: 0.85; }
+  .week-banner-icon { font-size: 22px; }
+  .week-banner-text { flex: 1; }
+  .week-banner-title { font-size: 15px; font-weight: 700; }
+  .week-banner-sub { font-size: 12px; opacity: 0.85; margin-top: 1px; }
+  .week-banner-arrow { font-size: 18px; opacity: 0.7; }
+
+  /* ── WEEK PLANNER VIEW ── */
+  .week-view-inner { padding: 16px; }
+  .week-section-title {
+    font-size: 13px; font-weight: 700; color: var(--text2);
+    text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 12px;
+  }
+  .day-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 0; border-bottom: 1px solid var(--border);
+  }
+  .day-row:last-of-type { border-bottom: none; }
+  .day-label {
+    font-size: 13px; font-weight: 700; color: var(--text2);
+    width: 34px; flex-shrink: 0;
+  }
+  .day-slot {
+    flex: 1; min-height: 40px; display: flex; align-items: center;
+  }
+  .day-add-btn {
+    display: flex; align-items: center; gap: 6px;
+    color: var(--text2); font-size: 14px; cursor: pointer;
+    border: 1.5px dashed var(--border); border-radius: 10px;
+    padding: 8px 12px; width: 100%; background: none;
+    transition: border-color 0.15s;
+  }
+  .day-add-btn:active { border-color: var(--accent); color: var(--accent); }
+  .day-recipe-chip {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px; padding: 8px 10px; width: 100%;
+    cursor: pointer;
+  }
+  .day-recipe-chip:active { opacity: 0.8; }
+  .day-chip-emoji { font-size: 20px; flex-shrink: 0; }
+  .day-chip-name { font-size: 13px; font-weight: 600; flex: 1; line-height: 1.3; }
+  .day-remove {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: var(--tag-bg); border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; color: var(--text2); flex-shrink: 0;
+  }
+  .shop-week-btn {
+    width: 100%; padding: 16px; background: var(--accent2); color: white;
+    border: none; border-radius: 14px; font-size: 16px; font-weight: 700;
+    cursor: pointer; margin-top: 20px; transition: opacity 0.15s;
+  }
+  .shop-week-btn:disabled { background: var(--border); color: var(--text2); cursor: default; }
+  .shop-week-btn:not(:disabled):active { opacity: 0.85; }
+
+  /* ── PICKER SHEET ── */
+  .picker-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+    z-index: 200; display: none; align-items: flex-end;
+  }
+  .picker-overlay.open { display: flex; }
+  .picker-sheet {
+    background: var(--card); width: 100%; border-radius: 20px 20px 0 0;
+    max-height: 75vh; overflow-y: auto;
+    padding: 0 0 env(safe-area-inset-bottom, 16px);
+    animation: slideUp 0.25s ease;
+  }
+  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  .picker-handle {
+    width: 36px; height: 4px; background: var(--border);
+    border-radius: 2px; margin: 12px auto 4px;
+  }
+  .picker-title {
+    font-size: 16px; font-weight: 700; padding: 8px 16px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .picker-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 13px 16px; border-bottom: 1px solid var(--border);
+    cursor: pointer; transition: background 0.1s;
+  }
+  .picker-item:active { background: var(--tag-bg); }
+  .picker-item-emoji { font-size: 26px; }
+  .picker-item-info { flex: 1; }
+  .picker-item-name { font-size: 15px; font-weight: 600; }
+  .picker-item-meta { font-size: 12px; color: var(--text2); margin-top: 2px; }
+  .picker-clear {
+    display: flex; align-items: center; gap: 12px;
+    padding: 13px 16px; cursor: pointer; color: var(--accent);
+    font-size: 15px; font-weight: 600;
+  }
+
+  /* ── WEEK GROCERY ── */
+  .week-grocery-inner { padding: 16px; }
+  .wg-stats {
+    display: flex; gap: 10px; margin-bottom: 16px;
+  }
+  .wg-stat {
+    flex: 1; background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 10px; text-align: center;
+  }
+  .wg-stat-val { font-size: 20px; font-weight: 800; color: var(--accent); }
+  .wg-stat-label { font-size: 11px; color: var(--text2); margin-top: 2px; }
+  .recipe-pill {
+    display: inline-block; font-size: 10px; font-weight: 600;
+    padding: 2px 7px; border-radius: 8px; background: var(--tag-bg);
+    color: var(--text2); margin-left: 6px; vertical-align: middle;
+    white-space: nowrap;
+  }
+
   /* ── EMPTY / UTILITY ── */
   .hidden { display: none !important; }
   .page { padding-bottom: env(safe-area-inset-bottom, 24px); }
@@ -245,6 +365,14 @@
     <div class="home-greeting">
       <h1>What are we cooking? 🔥</h1>
       <p>Tap a recipe to see ingredients & grocery list</p>
+    </div>
+    <div class="week-banner" onclick="openWeekView()">
+      <div class="week-banner-icon">📅</div>
+      <div class="week-banner-text">
+        <div class="week-banner-title">This Week's Plan</div>
+        <div class="week-banner-sub" id="weekBannerSub">Tap to plan your meals</div>
+      </div>
+      <div class="week-banner-arrow">›</div>
     </div>
     <div class="filters" id="filterBar">
       <button class="filter-btn active" onclick="filterRecipes('all', this)">All</button>
@@ -273,6 +401,29 @@
   <div id="tab-ingredients" class="tab-content active"></div>
   <div id="tab-steps" class="tab-content"></div>
   <div id="tab-grocery" class="tab-content"></div>
+</div>
+
+<!-- ══ WEEK PLANNER ══ -->
+<div id="week" class="page" style="display:none">
+  <div class="week-view-inner">
+    <p class="week-section-title">Plan Your Week</p>
+    <div id="dayRows"></div>
+    <button class="shop-week-btn" id="shopWeekBtn" onclick="openWeekGrocery()">🛒 Shop for This Week</button>
+  </div>
+</div>
+
+<!-- ══ WEEK GROCERY ══ -->
+<div id="weekgrocery" class="page" style="display:none">
+  <div class="week-grocery-inner" id="weekGroceryInner"></div>
+</div>
+
+<!-- ══ RECIPE PICKER SHEET ══ -->
+<div class="picker-overlay" id="pickerOverlay" onclick="closePicker(event)">
+  <div class="picker-sheet" id="pickerSheet">
+    <div class="picker-handle"></div>
+    <div class="picker-title" id="pickerTitle">Choose a recipe</div>
+    <div id="pickerItems"></div>
+  </div>
 </div>
 
 <script>
@@ -597,6 +748,22 @@ const recipes = [
 // ═══════════════════════════════════════════════════
 let currentRecipeId = null;
 let currentFilter = 'all';
+let pickerTargetDay = null;
+
+const DAYS = ['mon','tue','wed','thu','fri','sat','sun'];
+const DAY_LABELS = { mon:'Mon', tue:'Tue', wed:'Wed', thu:'Thu', fri:'Fri', sat:'Sat', sun:'Sun' };
+
+function getWeekPlan() {
+  try { return JSON.parse(localStorage.getItem('weekPlan') || '{}'); }
+  catch { return {}; }
+}
+function saveWeekPlan(plan) { localStorage.setItem('weekPlan', JSON.stringify(plan)); }
+
+function getWeekChecked() {
+  try { return JSON.parse(localStorage.getItem('weekGrocery_checked') || '{}'); }
+  catch { return {}; }
+}
+function saveWeekChecked(c) { localStorage.setItem('weekGrocery_checked', JSON.stringify(c)); }
 
 function getCheckedKey(recipeId) { return `checked_${recipeId}`; }
 function getChecked(recipeId) {
@@ -642,7 +809,7 @@ function renderGrid() {
 function openRecipe(id) {
   currentRecipeId = id;
   const r = recipes.find(x => x.id === id);
-  document.getElementById('home').style.display = 'none';
+  hideAll();
   document.getElementById('recipe').style.display = 'block';
   document.getElementById('backBtn').classList.remove('hidden');
   document.getElementById('headerTitle').textContent = r.cuisine + ' · ' + r.protein;
@@ -751,15 +918,226 @@ function clearGrocery(recipeId) {
 }
 
 // ═══════════════════════════════════════════════════
+// WEEK PLANNER
+// ═══════════════════════════════════════════════════
+function openWeekView() {
+  hideAll();
+  document.getElementById('week').style.display = 'block';
+  document.getElementById('backBtn').classList.remove('hidden');
+  document.getElementById('headerTitle').textContent = '📅 This Week';
+  document.getElementById('headerSub').textContent = 'Tap a day to assign a recipe';
+  renderDayRows();
+  window.scrollTo(0, 0);
+}
+
+function renderDayRows() {
+  const plan = getWeekPlan();
+  const planned = DAYS.filter(d => plan[d]).length;
+  document.getElementById('shopWeekBtn').disabled = planned === 0;
+
+  document.getElementById('dayRows').innerHTML = DAYS.map(day => {
+    const recipeId = plan[day];
+    const r = recipeId ? recipes.find(x => x.id === recipeId) : null;
+    return `
+      <div class="day-row">
+        <div class="day-label">${DAY_LABELS[day]}</div>
+        <div class="day-slot">
+          ${r ? `
+            <div class="day-recipe-chip" onclick="openPickerFor('${day}')">
+              <span class="day-chip-emoji">${r.emoji}</span>
+              <span class="day-chip-name">${r.name}</span>
+              <button class="day-remove" onclick="event.stopPropagation(); removeDay('${day}')">✕</button>
+            </div>
+          ` : `
+            <button class="day-add-btn" onclick="openPickerFor('${day}')">
+              <span style="font-size:18px;color:var(--accent)">+</span> Add recipe
+            </button>
+          `}
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  // Update home banner
+  updateWeekBanner();
+}
+
+function updateWeekBanner() {
+  const plan = getWeekPlan();
+  const count = DAYS.filter(d => plan[d]).length;
+  const sub = document.getElementById('weekBannerSub');
+  if (sub) sub.textContent = count === 0 ? 'Tap to plan your meals' : `${count} meal${count > 1 ? 's' : ''} planned this week`;
+}
+
+function removeDay(day) {
+  const plan = getWeekPlan();
+  delete plan[day];
+  saveWeekPlan(plan);
+  // Clear week grocery checked when plan changes
+  saveWeekChecked({});
+  renderDayRows();
+}
+
+// ── PICKER ──
+function openPickerFor(day) {
+  pickerTargetDay = day;
+  const plan = getWeekPlan();
+  const dayLabel = DAY_LABELS[day];
+  document.getElementById('pickerTitle').textContent = `Pick a recipe for ${dayLabel}`;
+
+  document.getElementById('pickerItems').innerHTML =
+    (plan[day] ? `<div class="picker-clear" onclick="removeDay('${day}'); closePicker()">✕  Remove this day</div>` : '') +
+    recipes.map(r => `
+      <div class="picker-item" onclick="assignDay('${day}', '${r.id}')">
+        <span class="picker-item-emoji">${r.emoji}</span>
+        <div class="picker-item-info">
+          <div class="picker-item-name">${r.name}</div>
+          <div class="picker-item-meta">${r.cuisine} · ${r.side} · ${r.time}</div>
+        </div>
+        ${plan[day] === r.id ? '<span style="color:var(--accent2);font-size:18px">✓</span>' : ''}
+      </div>
+    `).join('');
+
+  document.getElementById('pickerOverlay').classList.add('open');
+}
+
+function assignDay(day, recipeId) {
+  const plan = getWeekPlan();
+  plan[day] = recipeId;
+  saveWeekPlan(plan);
+  saveWeekChecked({});
+  closePicker();
+  renderDayRows();
+}
+
+function closePicker(e) {
+  if (e && e.target !== document.getElementById('pickerOverlay')) return;
+  document.getElementById('pickerOverlay').classList.remove('open');
+}
+
+// ── WEEK GROCERY ──
+function openWeekGrocery() {
+  const plan = getWeekPlan();
+  const plannedIds = DAYS.map(d => plan[d]).filter(Boolean);
+  if (!plannedIds.length) return;
+
+  hideAll();
+  document.getElementById('weekgrocery').style.display = 'block';
+  document.getElementById('backBtn').classList.remove('hidden');
+  document.getElementById('headerTitle').textContent = '🛒 Week Groceries';
+  document.getElementById('headerSub').textContent = `${plannedIds.length} meals`;
+  renderWeekGrocery(plannedIds);
+  window.scrollTo(0, 0);
+}
+
+function renderWeekGrocery(plannedIds) {
+  const plannedRecipes = plannedIds.map(id => recipes.find(r => r.id === id));
+  const checked = getWeekChecked();
+
+  // Build combined list: category → [ {text, recipeNames[]} ]
+  const catMap = {};
+  plannedRecipes.forEach(r => {
+    r.grocery.forEach(g => {
+      if (!catMap[g.category]) catMap[g.category] = [];
+      g.items.forEach(item => {
+        const existing = catMap[g.category].find(x => x.text.toLowerCase() === item.toLowerCase());
+        if (existing) {
+          if (!existing.recipes.includes(r.name)) existing.recipes.push(r.name);
+        } else {
+          catMap[g.category].push({ text: item, recipes: [r.name] });
+        }
+      });
+    });
+  });
+
+  const allItems = Object.values(catMap).flat();
+  const checkedCount = allItems.filter(i => checked[i.text]).length;
+  const total = allItems.length;
+  const pct = total ? (checkedCount / total * 100) : 0;
+
+  document.getElementById('weekGroceryInner').innerHTML = `
+    <div class="wg-stats">
+      <div class="wg-stat"><div class="wg-stat-val">${plannedIds.length}</div><div class="wg-stat-label">Meals</div></div>
+      <div class="wg-stat"><div class="wg-stat-val">${total}</div><div class="wg-stat-label">Items</div></div>
+      <div class="wg-stat"><div class="wg-stat-val">${total - checkedCount}</div><div class="wg-stat-label">Remaining</div></div>
+    </div>
+    <div class="progress-bar-wrap"><div class="progress-bar" id="wgProgress" style="width:${pct}%"></div></div>
+    <div class="grocery-header">
+      <h3>Shopping List</h3>
+      <button class="clear-btn" onclick="clearWeekGrocery()">Clear all</button>
+    </div>
+    ${Object.entries(catMap).map(([cat, items]) => `
+      <div class="grocery-group">
+        <div class="grocery-group-title">${cat}</div>
+        ${items.map(item => {
+          const isChecked = !!checked[item.text];
+          const safeText = item.text.replace(/'/g, "\\'");
+          return `
+            <div class="grocery-item ${isChecked ? 'checked' : ''}" onclick="toggleWeekItem(this, '${safeText}')">
+              <div class="grocery-check">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                  <path d="M2 6l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <span class="grocery-item-text">
+                ${item.text}
+                ${item.recipes.length > 1 ? `<span class="recipe-pill">×${item.recipes.length}</span>` : ''}
+              </span>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    `).join('')}
+  `;
+}
+
+function toggleWeekItem(el, text) {
+  el.classList.toggle('checked');
+  const checked = getWeekChecked();
+  if (el.classList.contains('checked')) checked[text] = true;
+  else delete checked[text];
+  saveWeekChecked(checked);
+
+  // Update stats
+  const plan = getWeekPlan();
+  const plannedIds = DAYS.map(d => plan[d]).filter(Boolean);
+  const plannedRecipes = plannedIds.map(id => recipes.find(r => r.id === id));
+  let total = 0;
+  plannedRecipes.forEach(r => r.grocery.forEach(g => { total += g.items.length; }));
+  const remaining = total - Object.keys(checked).length;
+  const pct = total ? ((total - remaining) / total * 100) : 0;
+  const bar = document.getElementById('wgProgress');
+  if (bar) bar.style.width = pct + '%';
+  const remEl = document.querySelector('.wg-stat-val:last-of-type');
+  // simpler: just rerender stats row
+  const statsEls = document.querySelectorAll('.wg-stat-val');
+  if (statsEls[2]) statsEls[2].textContent = remaining;
+}
+
+function clearWeekGrocery() {
+  saveWeekChecked({});
+  const plan = getWeekPlan();
+  const plannedIds = DAYS.map(d => plan[d]).filter(Boolean);
+  renderWeekGrocery(plannedIds);
+}
+
+// ═══════════════════════════════════════════════════
 // NAV
 // ═══════════════════════════════════════════════════
+function hideAll() {
+  ['home','recipe','week','weekgrocery'].forEach(id => {
+    document.getElementById(id).style.display = 'none';
+  });
+}
+
 function goHome() {
+  hideAll();
   document.getElementById('home').style.display = 'block';
-  document.getElementById('recipe').style.display = 'none';
   document.getElementById('backBtn').classList.add('hidden');
   document.getElementById('headerTitle').textContent = '🍽 Meal Planner';
   document.getElementById('headerSub').textContent = '10 recipes · 2 people';
   currentRecipeId = null;
+  updateWeekBanner();
   window.scrollTo(0, 0);
 }
 
@@ -774,6 +1152,7 @@ function switchTab(tabId, btn) {
 // INIT
 // ═══════════════════════════════════════════════════
 renderGrid();
+updateWeekBanner();
 </script>
 </body>
 </html>
