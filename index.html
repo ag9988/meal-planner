@@ -203,6 +203,26 @@
   .progress-bar-wrap { height: 4px; background: var(--border); border-radius: 2px; margin-bottom: 16px; }
   .progress-bar { height: 100%; background: var(--check); border-radius: 2px; transition: width 0.3s; }
 
+  /* ── NUTRITION ── */
+  .nutrition-row {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 8px; margin: 0 16px 4px;
+  }
+  .macro-box {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 10px 6px;
+    text-align: center;
+  }
+  .macro-value { font-size: 17px; font-weight: 800; color: var(--text); }
+  .macro-label { font-size: 10px; font-weight: 600; color: var(--text2);
+    text-transform: uppercase; letter-spacing: 0.4px; margin-top: 2px; }
+  .macro-box.cal .macro-value { color: var(--accent); }
+  .macro-box.protein .macro-value { color: #4a7c59; }
+  .nutrition-note {
+    font-size: 11px; color: var(--text2); text-align: center;
+    padding: 4px 16px 12px;
+  }
+
   /* ── EMPTY / UTILITY ── */
   .hidden { display: none !important; }
   .page { padding-bottom: env(safe-area-inset-bottom, 24px); }
@@ -243,6 +263,8 @@
     <div class="recipe-title" id="recipeTitle"></div>
     <div class="recipe-meta" id="recipeMeta"></div>
   </div>
+  <div class="nutrition-row" id="nutritionRow"></div>
+  <p class="nutrition-note">per serving · estimated</p>
   <div class="tabs">
     <button class="tab-btn active" onclick="switchTab('ingredients', this)">Ingredients</button>
     <button class="tab-btn" onclick="switchTab('steps', this)">Steps</button>
@@ -266,6 +288,7 @@ const recipes = [
     cuisine: 'Asian',
     time: '30 min',
     protein: 'Chicken',
+    nutrition: { cal: 545, protein: 38, carbs: 52, fat: 14 },
     desc: 'Crispy chicken thighs glazed in sticky honey sesame sauce over jasmine rice',
     ingredients: [
       { group: 'Protein', items: ['4 boneless chicken thighs', '2 tbsp cornstarch', 'Salt & pepper'] },
@@ -296,6 +319,7 @@ const recipes = [
     cuisine: 'Asian',
     time: '35 min',
     protein: 'Beef',
+    nutrition: { cal: 575, protein: 37, carbs: 58, fat: 16 },
     desc: 'Tender marinated beef in sweet-savory gochujang glaze over steamed rice with pickled veggies',
     ingredients: [
       { group: 'Protein & Marinade', items: ['350g flank steak or ribeye, thinly sliced', '3 tbsp soy sauce', '1½ tbsp brown sugar', '1 tbsp sesame oil', '1 tbsp gochujang (Korean chili paste)', '3 cloves garlic, minced', '1 tsp ginger, grated', '½ Asian pear or apple, grated (tenderizes the meat)'] },
@@ -325,6 +349,7 @@ const recipes = [
     cuisine: 'Mediterranean',
     time: '35 min',
     protein: 'Chicken',
+    nutrition: { cal: 590, protein: 44, carbs: 44, fat: 18 },
     desc: 'Pan-seared chicken over lemony orzo with feta, olives, sun-dried tomatoes and spinach',
     ingredients: [
       { group: 'Protein', items: ['2 chicken breasts', '1 tsp dried oregano', '1 tsp smoked paprika', 'Salt & pepper', '1 tbsp olive oil'] },
@@ -354,6 +379,7 @@ const recipes = [
     cuisine: 'Asian',
     time: '20 min',
     protein: 'Pork',
+    nutrition: { cal: 510, protein: 28, carbs: 48, fat: 22 },
     desc: 'Lightning-fast Thai street food: fragrant ground pork with Thai basil in a sweet-spicy sauce',
     ingredients: [
       { group: 'Protein', items: ['350g ground pork'] },
@@ -386,6 +412,7 @@ const recipes = [
     cuisine: 'Mediterranean',
     time: '35 min',
     protein: 'Chicken',
+    nutrition: { cal: 720, protein: 42, carbs: 68, fat: 26 },
     desc: 'Bold, smoky pasta with crispy chorizo, chicken, and a rich tomato-paprika sauce',
     ingredients: [
       { group: 'Protein', items: ['2 chicken thighs, boneless, cubed', '100g Spanish chorizo, sliced', '1 tbsp olive oil'] },
@@ -416,6 +443,7 @@ const recipes = [
     cuisine: 'Mexican',
     time: '25 min',
     protein: 'Chicken',
+    nutrition: { cal: 580, protein: 42, carbs: 38, fat: 22 },
     desc: 'Smoky charred chicken over crisp romaine with black beans, avocado, corn, and a zippy cilantro-lime dressing',
     ingredients: [
       { group: 'Chicken', items: ['2 chicken breasts', '2 chipotle peppers in adobo sauce, minced', '1 tbsp adobo sauce (from the can)', 'Juice of 1 lime', '1 tsp cumin', '1 tsp garlic powder', '1 tbsp olive oil', 'Salt & pepper'] },
@@ -446,6 +474,7 @@ const recipes = [
     cuisine: 'Mediterranean',
     time: '30 min',
     protein: 'Vegetarian',
+    nutrition: { cal: 480, protein: 26, carbs: 36, fat: 22 },
     desc: 'Eggs poached in a rich, spiced tomato sauce loaded with chickpeas and finished with feta and herbs. Served with a simple cucumber salad.',
     ingredients: [
       { group: 'Shakshuka', items: ['4 large eggs', '1 can (400g) chickpeas, drained', '1 can (400g) crushed tomatoes', '1 red bell pepper, diced', '1 onion, diced', '3 cloves garlic, minced', '1½ tsp cumin', '1 tsp smoked paprika', '½ tsp coriander', '¼ tsp cayenne', '2 tbsp olive oil', 'Salt & pepper'] },
@@ -475,6 +504,7 @@ const recipes = [
     cuisine: 'Mexican',
     time: '45 min',
     protein: 'Beef',
+    nutrition: { cal: 720, protein: 38, carbs: 58, fat: 32 },
     desc: 'Rich, deeply spiced braised beef over cilantro-lime rice with pickled red onion and crema',
     ingredients: [
       { group: 'Braised Beef', items: ['500g beef chuck, cut into large cubes', '2 guajillo chilis, deseeded', '1 chipotle in adobo + 1 tbsp sauce', '1 can (400g) diced tomatoes', '1 onion, quartered', '4 cloves garlic', '1 tsp cumin', '1 tsp dried oregano', '½ tsp smoked paprika', '2 cups beef broth', 'Salt & pepper', '1 tbsp oil'] },
@@ -505,6 +535,7 @@ const recipes = [
     cuisine: 'Mexican',
     time: '40 min',
     protein: 'Vegetarian',
+    nutrition: { cal: 640, protein: 18, carbs: 86, fat: 22 },
     desc: 'Caramelized roasted sweet potato and crispy spiced black beans over rice with avocado-tahini drizzle',
     ingredients: [
       { group: 'Roasted Veg', items: ['2 medium sweet potatoes, cubed', '1 can (400g) black beans, drained', '1 red onion, wedged', '1½ tbsp olive oil', '1 tsp cumin', '1 tsp smoked paprika', '½ tsp chili powder', 'Salt & pepper'] },
@@ -535,6 +566,7 @@ const recipes = [
     cuisine: 'American',
     time: '25 min',
     protein: 'Beef',
+    nutrition: { cal: 650, protein: 36, carbs: 10, fat: 52 },
     desc: 'All the joy of a smash burger — crispy beef, melty cheese, and special sauce — turned into a guilt-free salad bowl',
     ingredients: [
       { group: 'Smash Patties', items: ['350g ground beef (80/20)', '4 slices American or cheddar cheese', 'Salt, pepper, garlic powder', '1 tbsp neutral oil'] },
@@ -615,6 +647,15 @@ function openRecipe(id) {
   document.getElementById('backBtn').classList.remove('hidden');
   document.getElementById('headerTitle').textContent = r.cuisine + ' · ' + r.protein;
   document.getElementById('headerSub').textContent = r.time + ' · 2 servings';
+
+  // Nutrition row
+  const n = r.nutrition;
+  document.getElementById('nutritionRow').innerHTML = `
+    <div class="macro-box cal"><div class="macro-value">${n.cal}</div><div class="macro-label">Calories</div></div>
+    <div class="macro-box protein"><div class="macro-value">${n.protein}g</div><div class="macro-label">Protein</div></div>
+    <div class="macro-box"><div class="macro-value">${n.carbs}g</div><div class="macro-label">Carbs</div></div>
+    <div class="macro-box"><div class="macro-value">${n.fat}g</div><div class="macro-label">Fat</div></div>
+  `;
 
   document.getElementById('recipeHero').textContent = r.emoji;
   document.getElementById('recipeTitle').textContent = r.name;
