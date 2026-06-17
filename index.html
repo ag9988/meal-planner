@@ -985,10 +985,11 @@ function openPickerFor(day) {
   const dayLabel = DAY_LABELS[day];
   document.getElementById('pickerTitle').textContent = `Pick a recipe for ${dayLabel}`;
 
-  document.getElementById('pickerItems').innerHTML =
-    (plan[day] ? `<div class="picker-clear" onclick="removeDay('${day}'); closePicker()">✕  Remove this day</div>` : '') +
+  const container = document.getElementById('pickerItems');
+  container.innerHTML =
+    (plan[day] ? `<div class="picker-clear" data-action="remove">✕  Remove this day</div>` : '') +
     recipes.map(r => `
-      <div class="picker-item" onclick="assignDay('${day}', '${r.id}')">
+      <div class="picker-item" data-recipe-id="${r.id}">
         <span class="picker-item-emoji">${r.emoji}</span>
         <div class="picker-item-info">
           <div class="picker-item-name">${r.name}</div>
@@ -997,6 +998,13 @@ function openPickerFor(day) {
         ${plan[day] === r.id ? '<span style="color:var(--accent2);font-size:18px">✓</span>' : ''}
       </div>
     `).join('');
+
+  container.onclick = function(e) {
+    const item = e.target.closest('[data-recipe-id]');
+    if (item) { assignDay(day, item.dataset.recipeId); return; }
+    const remove = e.target.closest('[data-action="remove"]');
+    if (remove) { removeDay(day); closePicker(); }
+  };
 
   document.getElementById('pickerOverlay').classList.add('open');
 }
@@ -1040,12 +1048,7 @@ function renderWeekGrocery(plannedIds) {
     r.grocery.forEach(g => {
       if (!catMap[g.category]) catMap[g.category] = [];
       g.items.forEach(item => {
-        const existing = catMap[g.category].find(x => x.text.toLowerCase() === item.toLowerCase());
-        if (existing) {
-          if (!existing.recipes.includes(r.name)) existing.recipes.push(r.name);
-        } else {
-          catMap[g.category].push({ text: item, recipes: [r.name] });
-        }
+        catMap[g.category].push({ text: item, recipes: [r.name] });
       });
     });
   });
